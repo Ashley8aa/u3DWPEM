@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "u2e4-4fb4f": {
+      "hosting": {
+        "u2e4": [
+          "u2e4-4fb4f"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "u2e4-4fb4f"
+  }
+}

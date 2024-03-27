@@ -1,0 +1,27 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-dark">
+  <div class="container">
+    <!-- Navbar brand -->
+    <a class="navbar-brand me-2" href="/landing">
+      <img
+        src="/assets/images/logonav.png"
+        height="45"
+        alt=""
+        loading="lazy"
+        style="margin-top: -1px;"
+      />
+    </a>
+    <div class="d-flex align-items-center">
+      <ng-container *ngIf="authService.user$ | async; else signInButton">
+        <!-- If user is logged in -->
+        <button type="button" class="btn btn-dark" (click)="logout()">Sign Out</button>
+      </ng-container>
+      <ng-template #signInButton>
+        <!-- If user is not logged in -->
+        <a href="/login">
+          <button type="button" class="btn btn-dark">Sign In</button>
+        </a>
+      </ng-template>
+    </div>
+  </div>
+</nav>

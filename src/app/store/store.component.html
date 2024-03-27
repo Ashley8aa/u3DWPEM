@@ -1,0 +1,58 @@
+<app-navbar></app-navbar>
+<div class="container">
+    <div>
+        <button type="button" routerLink="/product-form" class="btn btn-success" style="margin-bottom: 10px;">Add Product</button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Description</th>
+                        <th class="text-end">Actions</th> <!-- Align Actions column to the right -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of products$ | async">
+                        <td>{{ item.name }}</td>
+                        <td>$ {{ item.price }}</td>
+                        <td>{{ item.description }}</td>
+                        <td class="text-end">
+                            <span class="material-icons me-2 icon-edit" (click)="updateProduct(item)" style="cursor: pointer;">edit</span>
+                            <span class="material-icons icon-delete" (click)="deleteProduct(item.id)" style="cursor: pointer;">delete</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+ 
+
+<!--
+<div class="container">
+    <div>
+        <button type="button" routerLink="/product-form" class="btn btn-outline-success" style="margin-bottom: 10px;">Add Product</button>
+    </div>
+
+    <div class="card-container">
+        <div *ngFor="let item of products$ | async" class="card-wrapper">
+            <div class="card" style="width: 18rem; margin-top: 10px;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">$ {{ item.price }}</h6>
+                    <p class="card-text">{{ item.description }}</p>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-success" (click)="updateProduct(item)">Edit</button>
+                        
+                        <button type="button" class="btn btn-danger"  (click)="deleteProduct(item.id)" >Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ -->

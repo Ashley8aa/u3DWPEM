@@ -1,0 +1,45 @@
+<body class="body">
+    <section class="vh-100 " style="background-color: #ffffff;">
+        <div class="container py-5 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col col-xl-10">
+              <div class="card" style="border-radius: 1rem;">
+                <div class="row g-0">
+                  <div class="col-md-12 col-lg-12">
+                    <div class="card-body p-4 p-lg-5 text-black">
+                     
+                        <form [formGroup]="productForm" (submit)="onSubmit()">
+                        <h1 class="fw-bold mb-3 pb-3" style="letter-spacing: 1px;">Product Details</h1>
+                        <div class="form-group mb-4">
+                          <input type="text" id="productName" class="form-control form-control-lg" placeholder="Product Name" formControlName="name">
+                         @if (productForm.get('name')?.hasError('required') && productForm.get('name')?.touched){
+                            <div class="form-text text-danger fw-bold" >Product name is required!</div>
+                        }
+                        </div>
+                        <div class="form-group mb-4">
+                          <input type="number" id="price" class="form-control form-control-lg" placeholder="Price" formControlName="price">
+                          @if (productForm.get('price')?.hasError('required') && productForm.get('price')?.touched){
+                            <div class="form-text text-danger fw-bold" >Price is required!</div>
+                        }
+                        </div>
+                        <div class="form-group mb-4">
+                          <textarea id="description" class="form-control form-control-lg" placeholder="Description" formControlName="description" rows="5"></textarea>
+                          @if (productForm.get('description')?.hasError('required') && productForm.get('description')?.touched){
+                            <div class="form-text text-danger fw-bold" >Description is required!</div>
+                          }
+                        </div>
+                        <div class="pt-1 mb-4">
+                          <button class="btn btn-success btn-lg btn-block" type="submit">Submit</button>
+                        </div>
+                        <a href="/store" class="small text-muted">Cancel</a>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+</body>
+
