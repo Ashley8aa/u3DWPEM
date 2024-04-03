@@ -1,5 +1,6 @@
 import {
   AuthInstances
+<<<<<<< HEAD
 } from "./chunk-E43EENJO.js";
 import {
   FirebaseApp,
@@ -36,12 +37,18 @@ import {
   timer
 } from "./chunk-57OCVIOX.js";
 import "./chunk-ZV5C4OJ4.js";
+=======
+} from "./chunk-PBT5MNNW.js";
+>>>>>>> a54aeb6ceb774b22ac491bbb238ee0d8513410f9
 import {
   Component,
+  FirebaseApp,
+  FirebaseApps,
   FirebaseError,
   LogLevel,
   Logger,
   SDK_VERSION,
+  VERSION,
   _getProvider,
   _registerComponent,
   _removeServiceInstance,
@@ -53,12 +60,48 @@ import {
   getUA,
   isIndexedDBAvailable,
   isSafari,
+<<<<<<< HEAD
   registerVersion
 } from "./chunk-NMXUWCWX.js";
 import {
   __async,
   __superGet
 } from "./chunk-NQTXELSB.js";
+=======
+  registerVersion,
+  ɵAngularFireSchedulers,
+  ɵAppCheckInstances,
+  ɵgetAllInstancesOf,
+  ɵgetDefaultInstanceOf,
+  ɵzoneWrap
+} from "./chunk-ZTPR7OXV.js";
+import {
+  InjectionToken,
+  Injector,
+  NgModule,
+  NgZone,
+  Optional,
+  setClassMetadata,
+  ɵɵdefineInjector,
+  ɵɵdefineNgModule
+} from "./chunk-KY3KN3TE.js";
+import {
+  Observable,
+  __async,
+  __superGet,
+  concatMap,
+  distinct,
+  distinctUntilChanged,
+  filter,
+  from,
+  map,
+  pairwise,
+  pipe,
+  scan,
+  startWith,
+  timer
+} from "./chunk-ZK3EWHI7.js";
+>>>>>>> a54aeb6ceb774b22ac491bbb238ee0d8513410f9
 
 // node_modules/@firebase/webchannel-wrapper/dist/esm/index.esm2017.js
 var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};

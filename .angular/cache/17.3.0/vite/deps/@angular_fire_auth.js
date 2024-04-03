@@ -1,15 +1,42 @@
 import {
+  AUTH_ERROR_CODES_MAP_DO_NOT_USE_INTERNALLY,
+  ActionCodeOperation,
+  ActionCodeURL,
   Auth,
+  AuthCredential,
   AuthInstances,
   AuthModule,
+  EmailAuthCredential,
+  EmailAuthProvider,
+  FacebookAuthProvider,
+  FactorId,
+  GithubAuthProvider,
+  GoogleAuthProvider,
+  OAuthCredential,
+  OAuthProvider,
+  OperationType,
+  PhoneAuthCredential,
+  PhoneAuthProvider,
+  PhoneMultiFactorGenerator,
+  ProviderId,
+  RecaptchaVerifier,
+  SAMLAuthProvider,
+  SignInMethod,
+  TotpMultiFactorGenerator,
+  TotpSecret,
+  TwitterAuthProvider,
   applyActionCode,
   authInstance$,
   authState,
   beforeAuthStateChanged,
+  browserLocalPersistence,
+  browserPopupRedirectResolver,
+  browserSessionPersistence,
   checkActionCode,
   confirmPasswordReset,
   connectAuthEmulator,
   createUserWithEmailAndPassword,
+  debugErrorMap,
   deleteUser,
   fetchSignInMethodsForEmail,
   getAdditionalUserInfo,
@@ -19,6 +46,8 @@ import {
   getMultiFactorResolver,
   getRedirectResult,
   idToken,
+  inMemoryPersistence,
+  indexedDBLocalPersistence,
   initializeAuth,
   initializeRecaptchaConfig,
   isSignInWithEmailLink,
@@ -30,6 +59,7 @@ import {
   onAuthStateChanged,
   onIdTokenChanged,
   parseActionCodeURL,
+  prodErrorMap,
   provideAuth,
   reauthenticateWithCredential,
   reauthenticateWithPhoneNumber,
@@ -61,6 +91,7 @@ import {
   validatePassword,
   verifyBeforeUpdateEmail,
   verifyPasswordResetCode
+<<<<<<< HEAD
 } from "./chunk-E43EENJO.js";
 import "./chunk-P2IRUHX6.js";
 import "./chunk-TYYJXFY2.js";
@@ -99,6 +130,12 @@ import {
 } from "./chunk-ZV5C4OJ4.js";
 import "./chunk-NMXUWCWX.js";
 import "./chunk-NQTXELSB.js";
+=======
+} from "./chunk-PBT5MNNW.js";
+import "./chunk-ZTPR7OXV.js";
+import "./chunk-KY3KN3TE.js";
+import "./chunk-ZK3EWHI7.js";
+>>>>>>> a54aeb6ceb774b22ac491bbb238ee0d8513410f9
 export {
   ActionCodeOperation,
   ActionCodeURL,

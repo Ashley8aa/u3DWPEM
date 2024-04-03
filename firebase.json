@@ -1,6 +1,10 @@
 {
   "hosting": {
+<<<<<<< HEAD
     "public": "dist/u2e4",
+=======
+    "public": "dir/firebase-deploy",
+>>>>>>> a54aeb6ceb774b22ac491bbb238ee0d8513410f9
     "ignore": [
       "firebase.json",
       "**/.*",
