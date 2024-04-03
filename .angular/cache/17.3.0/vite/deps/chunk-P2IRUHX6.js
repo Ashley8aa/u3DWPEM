@@ -1,13 +1,4 @@
 import {
-  deleteApp,
-  getApp,
-  getApps,
-  initializeApp,
-  onLog,
-  registerVersion,
-  setLogLevel
-} from "./chunk-KK3GTWPR.js";
-import {
   Inject,
   Injectable,
   InjectionToken,
@@ -23,7 +14,7 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-JIP7HUYT.js";
+} from "./chunk-TYYJXFY2.js";
 import {
   Observable,
   asyncScheduler,
@@ -35,7 +26,16 @@ import {
   subscribeOn,
   tap,
   timer
-} from "./chunk-23CFJGZX.js";
+} from "./chunk-57OCVIOX.js";
+import {
+  deleteApp,
+  getApp,
+  getApps,
+  initializeApp,
+  onLog,
+  registerVersion,
+  setLogLevel
+} from "./chunk-NMXUWCWX.js";
 
 // node_modules/firebase/app/dist/esm/index.esm.js
 var name = "firebase";
@@ -363,4 +363,4 @@ firebase/app/dist/esm/index.esm.js:
    * limitations under the License.
    *)
 */
-//# sourceMappingURL=chunk-64NZE5HF.js.map
+//# sourceMappingURL=chunk-P2IRUHX6.js.map

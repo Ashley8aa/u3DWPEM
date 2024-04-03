@@ -7,7 +7,26 @@ import {
   ɵgetAllInstancesOf,
   ɵgetDefaultInstanceOf,
   ɵzoneWrap
-} from "./chunk-64NZE5HF.js";
+} from "./chunk-P2IRUHX6.js";
+import {
+  InjectionToken,
+  Injector,
+  NgModule,
+  NgZone,
+  Optional,
+  setClassMetadata,
+  ɵɵdefineInjector,
+  ɵɵdefineNgModule
+} from "./chunk-TYYJXFY2.js";
+import {
+  Observable,
+  concatMap,
+  distinct,
+  from,
+  of,
+  switchMap,
+  timer
+} from "./chunk-57OCVIOX.js";
 import {
   applyActionCode,
   beforeAuthStateChanged,
@@ -63,29 +82,10 @@ import {
   validatePassword,
   verifyBeforeUpdateEmail,
   verifyPasswordResetCode
-} from "./chunk-SCUH5U3B.js";
+} from "./chunk-ZV5C4OJ4.js";
 import {
   registerVersion
-} from "./chunk-KK3GTWPR.js";
-import {
-  InjectionToken,
-  Injector,
-  NgModule,
-  NgZone,
-  Optional,
-  setClassMetadata,
-  ɵɵdefineInjector,
-  ɵɵdefineNgModule
-} from "./chunk-JIP7HUYT.js";
-import {
-  Observable,
-  concatMap,
-  distinct,
-  from,
-  of,
-  switchMap,
-  timer
-} from "./chunk-23CFJGZX.js";
+} from "./chunk-NMXUWCWX.js";
 
 // node_modules/rxfire/auth/index.esm.js
 function authState(auth) {
@@ -314,4 +314,4 @@ rxfire/auth/index.esm.js:
    * limitations under the License.
    *)
 */
-//# sourceMappingURL=chunk-IVTPR27L.js.map
+//# sourceMappingURL=chunk-E43EENJO.js.map
