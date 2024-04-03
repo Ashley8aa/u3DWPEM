@@ -64,10 +64,8 @@ node_modules/
 
 # dotenv environment variables file
 .env
-<<<<<<< HEAD
 
 
 #node for github
 node_modules/
-=======
->>>>>>> a54aeb6ceb774b22ac491bbb238ee0d8513410f9
+
