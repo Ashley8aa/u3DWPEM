@@ -1,10 +1,13 @@
 import {
   Component,
   ErrorFactory,
+  FirebaseApp,
+  FirebaseApps,
   FirebaseError,
   LogLevel,
   Logger,
   SDK_VERSION,
+  VERSION,
   _getProvider,
   _registerComponent,
   base64Decode,
@@ -23,13 +26,35 @@ import {
   isReactNative,
   querystring,
   querystringDecode,
-  registerVersion
-} from "./chunk-KK3GTWPR.js";
+  registerVersion,
+  ɵAngularFireSchedulers,
+  ɵAppCheckInstances,
+  ɵgetAllInstancesOf,
+  ɵgetDefaultInstanceOf,
+  ɵzoneWrap
+} from "./chunk-ZTPR7OXV.js";
 import {
+  InjectionToken,
+  Injector,
+  NgModule,
+  NgZone,
+  Optional,
+  setClassMetadata,
+  ɵɵdefineInjector,
+  ɵɵdefineNgModule
+} from "./chunk-KY3KN3TE.js";
+import {
+  Observable,
   __async,
   __rest,
-  __superGet
-} from "./chunk-F54OP6GS.js";
+  __superGet,
+  concatMap,
+  distinct,
+  from,
+  of,
+  switchMap,
+  timer
+} from "./chunk-ZK3EWHI7.js";
 
 // node_modules/@firebase/auth/dist/esm2017/index-77658911.js
 var FactorId = {
@@ -1264,12 +1289,12 @@ function utcTimestampToDateString(utcTimestamp) {
   }
   return void 0;
 }
-function getIdToken(user, forceRefresh = false) {
-  return getModularInstance(user).getIdToken(forceRefresh);
+function getIdToken(user3, forceRefresh = false) {
+  return getModularInstance(user3).getIdToken(forceRefresh);
 }
-function getIdTokenResult(user, forceRefresh = false) {
+function getIdTokenResult(user3, forceRefresh = false) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
+    const userInternal = getModularInstance(user3);
     const token = yield userInternal.getIdToken(forceRefresh);
     const claims = _parseToken(token);
     _assert(
@@ -1331,7 +1356,7 @@ function _tokenExpiresIn(token) {
   );
   return Number(parsedToken.exp) - Number(parsedToken.iat);
 }
-function _logoutIfInvalidated(user, promise, bypassAuthState = false) {
+function _logoutIfInvalidated(user3, promise, bypassAuthState = false) {
   return __async(this, null, function* () {
     if (bypassAuthState) {
       return promise;
@@ -1340,8 +1365,8 @@ function _logoutIfInvalidated(user, promise, bypassAuthState = false) {
       return yield promise;
     } catch (e) {
       if (e instanceof FirebaseError && isUserInvalidated(e)) {
-        if (user.auth.currentUser === user) {
-          yield user.auth.signOut();
+        if (user3.auth.currentUser === user3) {
+          yield user3.auth.signOut();
         }
       }
       throw e;
@@ -1352,8 +1377,8 @@ function isUserInvalidated({ code }) {
   return code === `auth/${"user-disabled"}` || code === `auth/${"user-token-expired"}`;
 }
 var ProactiveRefresh = class {
-  constructor(user) {
-    this.user = user;
+  constructor(user3) {
+    this.user = user3;
     this.isRunning = false;
     this.timerId = null;
     this.errorBackoff = 3e4;
@@ -1439,12 +1464,12 @@ var UserMetadata = class {
     };
   }
 };
-function _reloadWithoutSaving(user) {
+function _reloadWithoutSaving(user3) {
   return __async(this, null, function* () {
     var _a;
-    const auth = user.auth;
-    const idToken = yield user.getIdToken();
-    const response = yield _logoutIfInvalidated(user, getAccountInfo(auth, { idToken }));
+    const auth = user3.auth;
+    const idToken3 = yield user3.getIdToken();
+    const response = yield _logoutIfInvalidated(user3, getAccountInfo(auth, { idToken: idToken3 }));
     _assert(
       response === null || response === void 0 ? void 0 : response.users.length,
       auth,
@@ -1452,11 +1477,11 @@ function _reloadWithoutSaving(user) {
       /* AuthErrorCode.INTERNAL_ERROR */
     );
     const coreAccount = response.users[0];
-    user._notifyReloadListener(coreAccount);
+    user3._notifyReloadListener(coreAccount);
     const newProviderData = ((_a = coreAccount.providerUserInfo) === null || _a === void 0 ? void 0 : _a.length) ? extractProviderData(coreAccount.providerUserInfo) : [];
-    const providerData = mergeProviderData(user.providerData, newProviderData);
-    const oldIsAnonymous = user.isAnonymous;
-    const newIsAnonymous = !(user.email && coreAccount.passwordHash) && !(providerData === null || providerData === void 0 ? void 0 : providerData.length);
+    const providerData = mergeProviderData(user3.providerData, newProviderData);
+    const oldIsAnonymous = user3.isAnonymous;
+    const newIsAnonymous = !(user3.email && coreAccount.passwordHash) && !(providerData === null || providerData === void 0 ? void 0 : providerData.length);
     const isAnonymous = !oldIsAnonymous ? false : newIsAnonymous;
     const updates = {
       uid: coreAccount.localId,
@@ -1470,12 +1495,12 @@ function _reloadWithoutSaving(user) {
       metadata: new UserMetadata(coreAccount.createdAt, coreAccount.lastLoginAt),
       isAnonymous
     };
-    Object.assign(user, updates);
+    Object.assign(user3, updates);
   });
 }
-function reload(user) {
+function reload(user3) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
+    const userInternal = getModularInstance(user3);
     yield _reloadWithoutSaving(userInternal);
     yield userInternal.auth._persistUserIfCurrent(userInternal);
     userInternal.auth._notifyListenersIfCurrent(userInternal);
@@ -1679,26 +1704,26 @@ var UserImpl = class _UserImpl {
   reload() {
     return reload(this);
   }
-  _assign(user) {
-    if (this === user) {
+  _assign(user3) {
+    if (this === user3) {
       return;
     }
     _assert(
-      this.uid === user.uid,
+      this.uid === user3.uid,
       this.auth,
       "internal-error"
       /* AuthErrorCode.INTERNAL_ERROR */
     );
-    this.displayName = user.displayName;
-    this.photoURL = user.photoURL;
-    this.email = user.email;
-    this.emailVerified = user.emailVerified;
-    this.phoneNumber = user.phoneNumber;
-    this.isAnonymous = user.isAnonymous;
-    this.tenantId = user.tenantId;
-    this.providerData = user.providerData.map((userInfo) => Object.assign({}, userInfo));
-    this.metadata._copy(user.metadata);
-    this.stsTokenManager._assign(user.stsTokenManager);
+    this.displayName = user3.displayName;
+    this.photoURL = user3.photoURL;
+    this.email = user3.email;
+    this.emailVerified = user3.emailVerified;
+    this.phoneNumber = user3.phoneNumber;
+    this.isAnonymous = user3.isAnonymous;
+    this.tenantId = user3.tenantId;
+    this.providerData = user3.providerData.map((userInfo) => Object.assign({}, userInfo));
+    this.metadata._copy(user3.metadata);
+    this.stsTokenManager._assign(user3.stsTokenManager);
   }
   _clone(auth) {
     const newUser = new _UserImpl(Object.assign(Object.assign({}, this), { auth, stsTokenManager: this.stsTokenManager._clone() }));
@@ -1731,14 +1756,14 @@ var UserImpl = class _UserImpl {
   _stopProactiveRefresh() {
     this.proactiveRefresh._stop();
   }
-  _updateTokensIfNecessary(response, reload2 = false) {
+  _updateTokensIfNecessary(response, reload3 = false) {
     return __async(this, null, function* () {
       let tokensRefreshed = false;
       if (response.idToken && response.idToken !== this.stsTokenManager.accessToken) {
         this.stsTokenManager.updateFromServerResponse(response);
         tokensRefreshed = true;
       }
-      if (reload2) {
+      if (reload3) {
         yield _reloadWithoutSaving(this);
       }
       yield this.auth._persistUserIfCurrent(this);
@@ -1749,8 +1774,8 @@ var UserImpl = class _UserImpl {
   }
   delete() {
     return __async(this, null, function* () {
-      const idToken = yield this.getIdToken();
-      yield _logoutIfInvalidated(this, deleteAccount(this.auth, { idToken }));
+      const idToken3 = yield this.getIdToken();
+      yield _logoutIfInvalidated(this, deleteAccount(this.auth, { idToken: idToken3 }));
       this.stsTokenManager.clearRefreshToken();
       return this.auth.signOut();
     });
@@ -1823,7 +1848,7 @@ var UserImpl = class _UserImpl {
     assertStringOrUndefined(_redirectEventId, auth.name);
     assertStringOrUndefined(createdAt, auth.name);
     assertStringOrUndefined(lastLoginAt, auth.name);
-    const user = new _UserImpl({
+    const user3 = new _UserImpl({
       uid,
       auth,
       email,
@@ -1838,12 +1863,12 @@ var UserImpl = class _UserImpl {
       lastLoginAt
     });
     if (providerData && Array.isArray(providerData)) {
-      user.providerData = providerData.map((userInfo) => Object.assign({}, userInfo));
+      user3.providerData = providerData.map((userInfo) => Object.assign({}, userInfo));
     }
     if (_redirectEventId) {
-      user._redirectEventId = _redirectEventId;
+      user3._redirectEventId = _redirectEventId;
     }
-    return user;
+    return user3;
   }
   /**
    * Initialize a User from an idToken server response
@@ -1854,14 +1879,14 @@ var UserImpl = class _UserImpl {
     return __async(this, null, function* () {
       const stsTokenManager = new StsTokenManager();
       stsTokenManager.updateFromServerResponse(idTokenResponse);
-      const user = new _UserImpl({
+      const user3 = new _UserImpl({
         uid: idTokenResponse.localId,
         auth,
         stsTokenManager,
         isAnonymous
       });
-      yield _reloadWithoutSaving(user);
-      return user;
+      yield _reloadWithoutSaving(user3);
+      return user3;
     });
   }
 };
@@ -1926,8 +1951,8 @@ var PersistenceUserManager = class _PersistenceUserManager {
     this.boundEventHandler = auth._onStorageEvent.bind(auth);
     this.persistence._addListener(this.fullUserKey, this.boundEventHandler);
   }
-  setCurrentUser(user) {
-    return this.persistence._set(this.fullUserKey, user.toJSON());
+  setCurrentUser(user3) {
+    return this.persistence._set(this.fullUserKey, user3.toJSON());
   }
   getCurrentUser() {
     return __async(this, null, function* () {
@@ -1975,9 +2000,9 @@ var PersistenceUserManager = class _PersistenceUserManager {
         try {
           const blob = yield persistence._get(key);
           if (blob) {
-            const user = UserImpl._fromJSON(auth, blob);
+            const user3 = UserImpl._fromJSON(auth, blob);
             if (persistence !== selectedPersistence) {
-              userToMigrate = user;
+              userToMigrate = user3;
             }
             selectedPersistence = persistence;
             break;
@@ -2101,9 +2126,9 @@ var AuthMiddlewareQueue = class {
     this.queue = [];
   }
   pushCallback(callback, onAbort) {
-    const wrappedCallback = (user) => new Promise((resolve, reject) => {
+    const wrappedCallback = (user3) => new Promise((resolve, reject) => {
       try {
-        const result = callback(user);
+        const result = callback(user3);
         resolve(result);
       } catch (e) {
         reject(e);
@@ -2340,17 +2365,17 @@ var AuthImpl = class {
       if (this._deleted) {
         return;
       }
-      const user = yield this.assertedPersistence.getCurrentUser();
-      if (!this.currentUser && !user) {
+      const user3 = yield this.assertedPersistence.getCurrentUser();
+      if (!this.currentUser && !user3) {
         return;
       }
-      if (this.currentUser && user && this.currentUser.uid === user.uid) {
-        this._currentUser._assign(user);
+      if (this.currentUser && user3 && this.currentUser.uid === user3.uid) {
+        this._currentUser._assign(user3);
         yield this.currentUser.getIdToken();
         return;
       }
       yield this._updateCurrentUser(
-        user,
+        user3,
         /* skipBeforeStateCallbacks */
         true
       );
@@ -2414,16 +2439,16 @@ var AuthImpl = class {
       return result;
     });
   }
-  reloadAndSetCurrentUserOrClear(user) {
+  reloadAndSetCurrentUserOrClear(user3) {
     return __async(this, null, function* () {
       try {
-        yield _reloadWithoutSaving(user);
+        yield _reloadWithoutSaving(user3);
       } catch (e) {
         if ((e === null || e === void 0 ? void 0 : e.code) !== `auth/${"network-request-failed"}`) {
           return this.directlySetCurrentUser(null);
         }
       }
-      return this.directlySetCurrentUser(user);
+      return this.directlySetCurrentUser(user3);
     });
   }
   useDeviceLanguage() {
@@ -2436,36 +2461,36 @@ var AuthImpl = class {
   }
   updateCurrentUser(userExtern) {
     return __async(this, null, function* () {
-      const user = userExtern ? getModularInstance(userExtern) : null;
-      if (user) {
+      const user3 = userExtern ? getModularInstance(userExtern) : null;
+      if (user3) {
         _assert(
-          user.auth.config.apiKey === this.config.apiKey,
+          user3.auth.config.apiKey === this.config.apiKey,
           this,
           "invalid-user-token"
           /* AuthErrorCode.INVALID_AUTH */
         );
       }
-      return this._updateCurrentUser(user && user._clone(this));
+      return this._updateCurrentUser(user3 && user3._clone(this));
     });
   }
-  _updateCurrentUser(user, skipBeforeStateCallbacks = false) {
+  _updateCurrentUser(user3, skipBeforeStateCallbacks = false) {
     return __async(this, null, function* () {
       if (this._deleted) {
         return;
       }
-      if (user) {
+      if (user3) {
         _assert(
-          this.tenantId === user.tenantId,
+          this.tenantId === user3.tenantId,
           this,
           "tenant-id-mismatch"
           /* AuthErrorCode.TENANT_ID_MISMATCH */
         );
       }
       if (!skipBeforeStateCallbacks) {
-        yield this.beforeStateQueue.runMiddleware(user);
+        yield this.beforeStateQueue.runMiddleware(user3);
       }
       return this.queue(() => __async(this, null, function* () {
-        yield this.directlySetCurrentUser(user);
+        yield this.directlySetCurrentUser(user3);
         this.notifyAuthListeners();
       }));
     });
@@ -2558,12 +2583,12 @@ var AuthImpl = class {
   revokeAccessToken(token) {
     return __async(this, null, function* () {
       if (this.currentUser) {
-        const idToken = yield this.currentUser.getIdToken();
+        const idToken3 = yield this.currentUser.getIdToken();
         const request = {
           providerId: "apple.com",
           tokenType: "ACCESS_TOKEN",
           token,
-          idToken
+          idToken: idToken3
         };
         if (this.tenantId != null) {
           request.tenantId = this.tenantId;
@@ -2581,10 +2606,10 @@ var AuthImpl = class {
       currentUser: (_a = this._currentUser) === null || _a === void 0 ? void 0 : _a.toJSON()
     };
   }
-  _setRedirectUser(user, popupRedirectResolver) {
+  _setRedirectUser(user3, popupRedirectResolver) {
     return __async(this, null, function* () {
       const redirectManager = yield this.getOrInitRedirectPersistenceManager(popupRedirectResolver);
-      return user === null ? redirectManager.removeCurrentUser() : redirectManager.setCurrentUser(user);
+      return user3 === null ? redirectManager.removeCurrentUser() : redirectManager.setCurrentUser(user3);
     });
   }
   getOrInitRedirectPersistenceManager(popupRedirectResolver) {
@@ -2624,18 +2649,18 @@ var AuthImpl = class {
       return null;
     });
   }
-  _persistUserIfCurrent(user) {
+  _persistUserIfCurrent(user3) {
     return __async(this, null, function* () {
-      if (user === this.currentUser) {
+      if (user3 === this.currentUser) {
         return this.queue(() => __async(this, null, function* () {
-          return this.directlySetCurrentUser(user);
+          return this.directlySetCurrentUser(user3);
         }));
       }
     });
   }
   /** Notifies listeners only if the user is current */
-  _notifyListenersIfCurrent(user) {
-    if (user === this.currentUser) {
+  _notifyListenersIfCurrent(user3) {
+    if (user3 === this.currentUser) {
       this.notifyAuthListeners();
     }
   }
@@ -2709,17 +2734,17 @@ var AuthImpl = class {
    * should only be called from within a queued callback. This is necessary
    * because the queue shouldn't rely on another queued callback.
    */
-  directlySetCurrentUser(user) {
+  directlySetCurrentUser(user3) {
     return __async(this, null, function* () {
-      if (this.currentUser && this.currentUser !== user) {
+      if (this.currentUser && this.currentUser !== user3) {
         this._currentUser._stopProactiveRefresh();
       }
-      if (user && this.isProactiveRefreshEnabled) {
-        user._startProactiveRefresh();
+      if (user3 && this.isProactiveRefreshEnabled) {
+        user3._startProactiveRefresh();
       }
-      this.currentUser = user;
-      if (user) {
-        yield this.assertedPersistence.setCurrentUser(user);
+      this.currentUser = user3;
+      if (user3) {
+        yield this.assertedPersistence.setCurrentUser(user3);
       } else {
         yield this.assertedPersistence.removeCurrentUser();
       }
@@ -3295,12 +3320,12 @@ var EmailAuthCredential = class _EmailAuthCredential extends AuthCredential {
     });
   }
   /** @internal */
-  _linkToIdToken(auth, idToken) {
+  _linkToIdToken(auth, idToken3) {
     return __async(this, null, function* () {
       switch (this.signInMethod) {
         case "password":
           const request = {
-            idToken,
+            idToken: idToken3,
             returnSecureToken: true,
             email: this._email,
             password: this._password,
@@ -3310,7 +3335,7 @@ var EmailAuthCredential = class _EmailAuthCredential extends AuthCredential {
           return handleRecaptchaFlow(auth, request, "signUpPassword", linkEmailPassword);
         case "emailLink":
           return signInWithEmailLinkForLinking(auth, {
-            idToken,
+            idToken: idToken3,
             email: this._email,
             oobCode: this._password
           });
@@ -3407,9 +3432,9 @@ var OAuthCredential = class _OAuthCredential extends AuthCredential {
     return signInWithIdp(auth, request);
   }
   /** @internal */
-  _linkToIdToken(auth, idToken) {
+  _linkToIdToken(auth, idToken3) {
     const request = this.buildRequest();
-    request.idToken = idToken;
+    request.idToken = idToken3;
     return signInWithIdp(auth, request);
   }
   /** @internal */
@@ -3499,8 +3524,8 @@ var PhoneAuthCredential = class _PhoneAuthCredential extends AuthCredential {
     return signInWithPhoneNumber$1(auth, this._makeVerificationRequest());
   }
   /** @internal */
-  _linkToIdToken(auth, idToken) {
-    return linkWithPhoneNumber$1(auth, Object.assign({ idToken }, this._makeVerificationRequest()));
+  _linkToIdToken(auth, idToken3) {
+    return linkWithPhoneNumber$1(auth, Object.assign({ idToken: idToken3 }, this._makeVerificationRequest()));
   }
   /** @internal */
   _getReauthenticationResolver(auth) {
@@ -3932,11 +3957,11 @@ var GoogleAuthProvider = class _GoogleAuthProvider extends BaseOAuthProvider {
    * @param idToken - Google ID token.
    * @param accessToken - Google access token.
    */
-  static credential(idToken, accessToken) {
+  static credential(idToken3, accessToken) {
     return OAuthCredential._fromParams({
       providerId: _GoogleAuthProvider.PROVIDER_ID,
       signInMethod: _GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD,
-      idToken,
+      idToken: idToken3,
       accessToken
     });
   }
@@ -4039,9 +4064,9 @@ var SAMLAuthCredential = class _SAMLAuthCredential extends AuthCredential {
     return signInWithIdp(auth, request);
   }
   /** @internal */
-  _linkToIdToken(auth, idToken) {
+  _linkToIdToken(auth, idToken3) {
     const request = this.buildRequest();
-    request.idToken = idToken;
+    request.idToken = idToken3;
     return signInWithIdp(auth, request);
   }
   /** @internal */
@@ -4230,10 +4255,10 @@ var UserCredentialImpl = class _UserCredentialImpl {
   }
   static _fromIdTokenResponse(auth, operationType, idTokenResponse, isAnonymous = false) {
     return __async(this, null, function* () {
-      const user = yield UserImpl._fromIdTokenResponse(auth, idTokenResponse, isAnonymous);
+      const user3 = yield UserImpl._fromIdTokenResponse(auth, idTokenResponse, isAnonymous);
       const providerId = providerIdForResponse(idTokenResponse);
       const userCred = new _UserCredentialImpl({
-        user,
+        user: user3,
         providerId,
         _tokenResponse: idTokenResponse,
         operationType
@@ -4241,16 +4266,16 @@ var UserCredentialImpl = class _UserCredentialImpl {
       return userCred;
     });
   }
-  static _forOperation(user, operationType, response) {
+  static _forOperation(user3, operationType, response) {
     return __async(this, null, function* () {
-      yield user._updateTokensIfNecessary(
+      yield user3._updateTokensIfNecessary(
         response,
         /* reload */
         true
       );
       const providerId = providerIdForResponse(response);
       return new _UserCredentialImpl({
-        user,
+        user: user3,
         providerId,
         _tokenResponse: response,
         operationType
@@ -4289,11 +4314,11 @@ function signInAnonymously(auth) {
   });
 }
 var MultiFactorError = class _MultiFactorError extends FirebaseError {
-  constructor(auth, error, operationType, user) {
+  constructor(auth, error, operationType, user3) {
     var _a;
     super(error.code, error.message);
     this.operationType = operationType;
-    this.user = user;
+    this.user = user3;
     Object.setPrototypeOf(this, _MultiFactorError.prototype);
     this.customData = {
       appName: auth.name,
@@ -4302,15 +4327,15 @@ var MultiFactorError = class _MultiFactorError extends FirebaseError {
       operationType
     };
   }
-  static _fromErrorAndOperation(auth, error, operationType, user) {
-    return new _MultiFactorError(auth, error, operationType, user);
+  static _fromErrorAndOperation(auth, error, operationType, user3) {
+    return new _MultiFactorError(auth, error, operationType, user3);
   }
 };
-function _processCredentialSavingMfaContextIfNecessary(auth, operationType, credential, user) {
+function _processCredentialSavingMfaContextIfNecessary(auth, operationType, credential, user3) {
   const idTokenProvider = operationType === "reauthenticate" ? credential._getReauthenticationResolver(auth) : credential._getIdTokenResponse(auth);
   return idTokenProvider.catch((error) => {
     if (error.code === `auth/${"multi-factor-auth-required"}`) {
-      throw MultiFactorError._fromErrorAndOperation(auth, error, operationType, user);
+      throw MultiFactorError._fromErrorAndOperation(auth, error, operationType, user3);
     }
     throw error;
   });
@@ -4318,9 +4343,9 @@ function _processCredentialSavingMfaContextIfNecessary(auth, operationType, cred
 function providerDataAsNames(providerData) {
   return new Set(providerData.map(({ providerId }) => providerId).filter((pid) => !!pid));
 }
-function unlink(user, providerId) {
+function unlink(user3, providerId) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
+    const userInternal = getModularInstance(user3);
     yield _assertLinkedStatus(true, userInternal, providerId);
     const { providerUserInfo } = yield deleteLinkedAccounts(userInternal.auth, {
       idToken: yield userInternal.getIdToken(),
@@ -4338,26 +4363,26 @@ function unlink(user, providerId) {
     return userInternal;
   });
 }
-function _link$1(user, credential, bypassAuthState = false) {
+function _link$1(user3, credential, bypassAuthState = false) {
   return __async(this, null, function* () {
-    const response = yield _logoutIfInvalidated(user, credential._linkToIdToken(user.auth, yield user.getIdToken()), bypassAuthState);
-    return UserCredentialImpl._forOperation(user, "link", response);
+    const response = yield _logoutIfInvalidated(user3, credential._linkToIdToken(user3.auth, yield user3.getIdToken()), bypassAuthState);
+    return UserCredentialImpl._forOperation(user3, "link", response);
   });
 }
-function _assertLinkedStatus(expected, user, provider) {
+function _assertLinkedStatus(expected, user3, provider) {
   return __async(this, null, function* () {
-    yield _reloadWithoutSaving(user);
-    const providerIds = providerDataAsNames(user.providerData);
+    yield _reloadWithoutSaving(user3);
+    const providerIds = providerDataAsNames(user3.providerData);
     const code = expected === false ? "provider-already-linked" : "no-such-provider";
-    _assert(providerIds.has(provider) === expected, user.auth, code);
+    _assert(providerIds.has(provider) === expected, user3.auth, code);
   });
 }
-function _reauthenticate(user, credential, bypassAuthState = false) {
+function _reauthenticate(user3, credential, bypassAuthState = false) {
   return __async(this, null, function* () {
-    const { auth } = user;
+    const { auth } = user3;
     const operationType = "reauthenticate";
     try {
-      const response = yield _logoutIfInvalidated(user, _processCredentialSavingMfaContextIfNecessary(auth, operationType, credential, user), bypassAuthState);
+      const response = yield _logoutIfInvalidated(user3, _processCredentialSavingMfaContextIfNecessary(auth, operationType, credential, user3), bypassAuthState);
       _assert(
         response.idToken,
         auth,
@@ -4373,12 +4398,12 @@ function _reauthenticate(user, credential, bypassAuthState = false) {
       );
       const { sub: localId } = parsed;
       _assert(
-        user.uid === localId,
+        user3.uid === localId,
         auth,
         "user-mismatch"
         /* AuthErrorCode.USER_MISMATCH */
       );
-      return UserCredentialImpl._forOperation(user, operationType, response);
+      return UserCredentialImpl._forOperation(user3, operationType, response);
     } catch (e) {
       if ((e === null || e === void 0 ? void 0 : e.code) === `auth/${"user-not-found"}`) {
         _fail(
@@ -4407,16 +4432,16 @@ function signInWithCredential(auth, credential) {
     return _signInWithCredential(_castAuth(auth), credential);
   });
 }
-function linkWithCredential(user, credential) {
+function linkWithCredential(user3, credential) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
+    const userInternal = getModularInstance(user3);
     yield _assertLinkedStatus(false, userInternal, credential.providerId);
     return _link$1(userInternal, credential);
   });
 }
-function reauthenticateWithCredential(user, credential) {
+function reauthenticateWithCredential(user3, credential) {
   return __async(this, null, function* () {
-    return _reauthenticate(getModularInstance(user), credential);
+    return _reauthenticate(getModularInstance(user3), credential);
   });
 }
 function signInWithCustomToken$1(auth, request) {
@@ -4696,38 +4721,38 @@ function fetchSignInMethodsForEmail(auth, email) {
     return signinMethods || [];
   });
 }
-function sendEmailVerification(user, actionCodeSettings) {
+function sendEmailVerification(user3, actionCodeSettings) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
-    const idToken = yield user.getIdToken();
+    const userInternal = getModularInstance(user3);
+    const idToken3 = yield user3.getIdToken();
     const request = {
       requestType: "VERIFY_EMAIL",
-      idToken
+      idToken: idToken3
     };
     if (actionCodeSettings) {
       _setActionCodeSettingsOnRequest(userInternal.auth, request, actionCodeSettings);
     }
     const { email } = yield sendEmailVerification$1(userInternal.auth, request);
-    if (email !== user.email) {
-      yield user.reload();
+    if (email !== user3.email) {
+      yield user3.reload();
     }
   });
 }
-function verifyBeforeUpdateEmail(user, newEmail, actionCodeSettings) {
+function verifyBeforeUpdateEmail(user3, newEmail, actionCodeSettings) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
-    const idToken = yield user.getIdToken();
+    const userInternal = getModularInstance(user3);
+    const idToken3 = yield user3.getIdToken();
     const request = {
       requestType: "VERIFY_AND_CHANGE_EMAIL",
-      idToken,
+      idToken: idToken3,
       newEmail
     };
     if (actionCodeSettings) {
       _setActionCodeSettingsOnRequest(userInternal.auth, request, actionCodeSettings);
     }
     const { email } = yield verifyAndChangeEmail(userInternal.auth, request);
-    if (email !== user.email) {
-      yield user.reload();
+    if (email !== user3.email) {
+      yield user3.reload();
     }
   });
 }
@@ -4737,14 +4762,14 @@ function updateProfile$1(auth, request) {
   });
 }
 function updateProfile(_0, _1) {
-  return __async(this, arguments, function* (user, { displayName, photoURL: photoUrl }) {
+  return __async(this, arguments, function* (user3, { displayName, photoURL: photoUrl }) {
     if (displayName === void 0 && photoUrl === void 0) {
       return;
     }
-    const userInternal = getModularInstance(user);
-    const idToken = yield userInternal.getIdToken();
+    const userInternal = getModularInstance(user3);
+    const idToken3 = yield userInternal.getIdToken();
     const profileRequest = {
-      idToken,
+      idToken: idToken3,
       displayName,
       photoUrl,
       returnSecureToken: true
@@ -4763,18 +4788,18 @@ function updateProfile(_0, _1) {
     yield userInternal._updateTokensIfNecessary(response);
   });
 }
-function updateEmail(user, newEmail) {
-  return updateEmailOrPassword(getModularInstance(user), newEmail, null);
+function updateEmail(user3, newEmail) {
+  return updateEmailOrPassword(getModularInstance(user3), newEmail, null);
 }
-function updatePassword(user, newPassword) {
-  return updateEmailOrPassword(getModularInstance(user), null, newPassword);
+function updatePassword(user3, newPassword) {
+  return updateEmailOrPassword(getModularInstance(user3), null, newPassword);
 }
-function updateEmailOrPassword(user, email, password) {
+function updateEmailOrPassword(user3, email, password) {
   return __async(this, null, function* () {
-    const { auth } = user;
-    const idToken = yield user.getIdToken();
+    const { auth } = user3;
+    const idToken3 = yield user3.getIdToken();
     const request = {
-      idToken,
+      idToken: idToken3,
       returnSecureToken: true
     };
     if (email) {
@@ -4783,8 +4808,8 @@ function updateEmailOrPassword(user, email, password) {
     if (password) {
       request.password = password;
     }
-    const response = yield _logoutIfInvalidated(user, updateEmailPassword(auth, request));
-    yield user._updateTokensIfNecessary(
+    const response = yield _logoutIfInvalidated(user3, updateEmailPassword(auth, request));
+    yield user3._updateTokensIfNecessary(
       response,
       /* reload */
       true
@@ -4859,8 +4884,8 @@ var TwitterAdditionalUserInfo = class extends FederatedAdditionalUserInfoWithUse
   }
 };
 function getAdditionalUserInfo(userCredential) {
-  const { user, _tokenResponse } = userCredential;
-  if (user.isAnonymous && !_tokenResponse) {
+  const { user: user3, _tokenResponse } = userCredential;
+  if (user3.isAnonymous && !_tokenResponse) {
     return {
       providerId: null,
       isNewUser: false,
@@ -4893,8 +4918,8 @@ function onAuthStateChanged(auth, nextOrObserver, error, completed) {
 function useDeviceLanguage(auth) {
   getModularInstance(auth).useDeviceLanguage();
 }
-function updateCurrentUser(auth, user) {
-  return getModularInstance(auth).updateCurrentUser(user);
+function updateCurrentUser(auth, user3) {
+  return getModularInstance(auth).updateCurrentUser(user3);
 }
 function signOut(auth) {
   return getModularInstance(auth).signOut();
@@ -4903,19 +4928,19 @@ function revokeAccessToken(auth, token) {
   const authInternal = _castAuth(auth);
   return authInternal.revokeAccessToken(token);
 }
-function deleteUser(user) {
+function deleteUser(user3) {
   return __async(this, null, function* () {
-    return getModularInstance(user).delete();
+    return getModularInstance(user3).delete();
   });
 }
 var MultiFactorSessionImpl = class _MultiFactorSessionImpl {
-  constructor(type, credential, user) {
+  constructor(type, credential, user3) {
     this.type = type;
     this.credential = credential;
-    this.user = user;
+    this.user = user3;
   }
-  static _fromIdtoken(idToken, user) {
-    return new _MultiFactorSessionImpl("enroll", idToken, user);
+  static _fromIdtoken(idToken3, user3) {
+    return new _MultiFactorSessionImpl("enroll", idToken3, user3);
   }
   static _fromMfaPendingCredential(mfaPendingCredential) {
     return new _MultiFactorSessionImpl("signin", mfaPendingCredential);
@@ -5026,17 +5051,17 @@ function withdrawMfa(auth, request) {
   return _performApiRequest(auth, "POST", "/v2/accounts/mfaEnrollment:withdraw", _addTidIfNecessary(auth, request));
 }
 var MultiFactorUserImpl = class _MultiFactorUserImpl {
-  constructor(user) {
-    this.user = user;
+  constructor(user3) {
+    this.user = user3;
     this.enrolledFactors = [];
-    user._onReload((userInfo) => {
+    user3._onReload((userInfo) => {
       if (userInfo.mfaInfo) {
-        this.enrolledFactors = userInfo.mfaInfo.map((enrollment) => MultiFactorInfoImpl._fromServerResponse(user.auth, enrollment));
+        this.enrolledFactors = userInfo.mfaInfo.map((enrollment) => MultiFactorInfoImpl._fromServerResponse(user3.auth, enrollment));
       }
     });
   }
-  static _fromUser(user) {
-    return new _MultiFactorUserImpl(user);
+  static _fromUser(user3) {
+    return new _MultiFactorUserImpl(user3);
   }
   getSession() {
     return __async(this, null, function* () {
@@ -5055,10 +5080,10 @@ var MultiFactorUserImpl = class _MultiFactorUserImpl {
   unenroll(infoOrUid) {
     return __async(this, null, function* () {
       const mfaEnrollmentId = typeof infoOrUid === "string" ? infoOrUid : infoOrUid.uid;
-      const idToken = yield this.user.getIdToken();
+      const idToken3 = yield this.user.getIdToken();
       try {
         const idTokenResponse = yield _logoutIfInvalidated(this.user, withdrawMfa(this.user.auth, {
-          idToken,
+          idToken: idToken3,
           mfaEnrollmentId
         }));
         this.enrolledFactors = this.enrolledFactors.filter(({ uid }) => uid !== mfaEnrollmentId);
@@ -5071,8 +5096,8 @@ var MultiFactorUserImpl = class _MultiFactorUserImpl {
   }
 };
 var multiFactorUserCache = /* @__PURE__ */ new WeakMap();
-function multiFactor(user) {
-  const userModular = getModularInstance(user);
+function multiFactor(user3) {
+  const userModular = getModularInstance(user3);
   if (!multiFactorUserCache.has(userModular)) {
     multiFactorUserCache.set(userModular, MultiFactorUserImpl._fromUser(userModular));
   }
@@ -6307,9 +6332,9 @@ function signInWithPhoneNumber(auth, phoneNumber, appVerifier) {
     return new ConfirmationResultImpl(verificationId, (cred) => signInWithCredential(authInternal, cred));
   });
 }
-function linkWithPhoneNumber(user, phoneNumber, appVerifier) {
+function linkWithPhoneNumber(user3, phoneNumber, appVerifier) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
+    const userInternal = getModularInstance(user3);
     yield _assertLinkedStatus(
       false,
       userInternal,
@@ -6320,9 +6345,9 @@ function linkWithPhoneNumber(user, phoneNumber, appVerifier) {
     return new ConfirmationResultImpl(verificationId, (cred) => linkWithCredential(userInternal, cred));
   });
 }
-function reauthenticateWithPhoneNumber(user, phoneNumber, appVerifier) {
+function reauthenticateWithPhoneNumber(user3, phoneNumber, appVerifier) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
+    const userInternal = getModularInstance(user3);
     const verificationId = yield _verifyPhoneNumber(userInternal.auth, phoneNumber, getModularInstance(appVerifier));
     return new ConfirmationResultImpl(verificationId, (cred) => reauthenticateWithCredential(userInternal, cred));
   });
@@ -6404,9 +6429,9 @@ function _verifyPhoneNumber(auth, options, verifier) {
     }
   });
 }
-function updatePhoneNumber(user, credential) {
+function updatePhoneNumber(user3, credential) {
   return __async(this, null, function* () {
-    yield _link$1(getModularInstance(user), credential);
+    yield _link$1(getModularInstance(user3), credential);
   });
 }
 var PhoneAuthProvider = class _PhoneAuthProvider {
@@ -6562,13 +6587,13 @@ var IdpCredential = class extends AuthCredential {
   _getIdTokenResponse(auth) {
     return signInWithIdp(auth, this._buildIdpRequest());
   }
-  _linkToIdToken(auth, idToken) {
-    return signInWithIdp(auth, this._buildIdpRequest(idToken));
+  _linkToIdToken(auth, idToken3) {
+    return signInWithIdp(auth, this._buildIdpRequest(idToken3));
   }
   _getReauthenticationResolver(auth) {
     return signInWithIdp(auth, this._buildIdpRequest());
   }
-  _buildIdpRequest(idToken) {
+  _buildIdpRequest(idToken3) {
     const request = {
       requestUri: this.params.requestUri,
       sessionId: this.params.sessionId,
@@ -6578,8 +6603,8 @@ var IdpCredential = class extends AuthCredential {
       returnSecureToken: true,
       returnIdpCredential: true
     };
-    if (idToken) {
-      request.idToken = idToken;
+    if (idToken3) {
+      request.idToken = idToken3;
     }
     return request;
   }
@@ -6588,32 +6613,32 @@ function _signIn(params) {
   return _signInWithCredential(params.auth, new IdpCredential(params), params.bypassAuthState);
 }
 function _reauth(params) {
-  const { auth, user } = params;
+  const { auth, user: user3 } = params;
   _assert(
-    user,
+    user3,
     auth,
     "internal-error"
     /* AuthErrorCode.INTERNAL_ERROR */
   );
-  return _reauthenticate(user, new IdpCredential(params), params.bypassAuthState);
+  return _reauthenticate(user3, new IdpCredential(params), params.bypassAuthState);
 }
 function _link(params) {
   return __async(this, null, function* () {
-    const { auth, user } = params;
+    const { auth, user: user3 } = params;
     _assert(
-      user,
+      user3,
       auth,
       "internal-error"
       /* AuthErrorCode.INTERNAL_ERROR */
     );
-    return _link$1(user, new IdpCredential(params), params.bypassAuthState);
+    return _link$1(user3, new IdpCredential(params), params.bypassAuthState);
   });
 }
 var AbstractPopupRedirectOperation = class {
-  constructor(auth, filter, resolver, user, bypassAuthState = false) {
+  constructor(auth, filter, resolver, user3, bypassAuthState = false) {
     this.auth = auth;
     this.resolver = resolver;
-    this.user = user;
+    this.user = user3;
     this.bypassAuthState = bypassAuthState;
     this.pendingPromise = null;
     this.eventManager = null;
@@ -6704,18 +6729,18 @@ function signInWithPopup(auth, provider, resolver) {
     return action.executeNotNull();
   });
 }
-function reauthenticateWithPopup(user, provider, resolver) {
+function reauthenticateWithPopup(user3, provider, resolver) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
+    const userInternal = getModularInstance(user3);
     _assertInstanceOf(userInternal.auth, provider, FederatedAuthProvider);
     const resolverInternal = _withDefaultResolver(userInternal.auth, resolver);
     const action = new PopupOperation(userInternal.auth, "reauthViaPopup", provider, resolverInternal, userInternal);
     return action.executeNotNull();
   });
 }
-function linkWithPopup(user, provider, resolver) {
+function linkWithPopup(user3, provider, resolver) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
+    const userInternal = getModularInstance(user3);
     _assertInstanceOf(userInternal.auth, provider, FederatedAuthProvider);
     const resolverInternal = _withDefaultResolver(userInternal.auth, resolver);
     const action = new PopupOperation(userInternal.auth, "linkViaPopup", provider, resolverInternal, userInternal);
@@ -6723,8 +6748,8 @@ function linkWithPopup(user, provider, resolver) {
   });
 }
 var PopupOperation = class _PopupOperation extends AbstractPopupRedirectOperation {
-  constructor(auth, filter, provider, resolver, user) {
-    super(auth, filter, resolver, user);
+  constructor(auth, filter, provider, resolver, user3) {
+    super(auth, filter, resolver, user3);
     this.provider = provider;
     this.authWindow = null;
     this.pollId = null;
@@ -6863,9 +6888,9 @@ var RedirectAction = class _RedirectAction extends AbstractPopupRedirectOperatio
         return;
       }
       if (event.eventId) {
-        const user = yield this.auth._redirectUserForId(event.eventId);
-        if (user) {
-          this.user = user;
+        const user3 = yield this.auth._redirectUserForId(event.eventId);
+        if (user3) {
+          this.user = user3;
           return __superGet(_RedirectAction.prototype, this, "onAuthEvent").call(this, event);
         } else {
           this.resolve(null);
@@ -6924,12 +6949,12 @@ function _signInWithRedirect(auth, provider, resolver) {
     );
   });
 }
-function reauthenticateWithRedirect(user, provider, resolver) {
-  return _reauthenticateWithRedirect(user, provider, resolver);
+function reauthenticateWithRedirect(user3, provider, resolver) {
+  return _reauthenticateWithRedirect(user3, provider, resolver);
 }
-function _reauthenticateWithRedirect(user, provider, resolver) {
+function _reauthenticateWithRedirect(user3, provider, resolver) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
+    const userInternal = getModularInstance(user3);
     _assertInstanceOf(userInternal.auth, provider, FederatedAuthProvider);
     yield userInternal.auth._initializationPromise;
     const resolverInternal = _withDefaultResolver(userInternal.auth, resolver);
@@ -6938,12 +6963,12 @@ function _reauthenticateWithRedirect(user, provider, resolver) {
     return resolverInternal._openRedirect(userInternal.auth, provider, "reauthViaRedirect", eventId);
   });
 }
-function linkWithRedirect(user, provider, resolver) {
-  return _linkWithRedirect(user, provider, resolver);
+function linkWithRedirect(user3, provider, resolver) {
+  return _linkWithRedirect(user3, provider, resolver);
 }
-function _linkWithRedirect(user, provider, resolver) {
+function _linkWithRedirect(user3, provider, resolver) {
   return __async(this, null, function* () {
-    const userInternal = getModularInstance(user);
+    const userInternal = getModularInstance(user3);
     _assertInstanceOf(userInternal.auth, provider, FederatedAuthProvider);
     yield userInternal.auth._initializationPromise;
     const resolverInternal = _withDefaultResolver(userInternal.auth, resolver);
@@ -6973,12 +6998,12 @@ function _getRedirectResult(auth, resolverExtern, bypassAuthState = false) {
     return result;
   });
 }
-function prepareUserForRedirect(user) {
+function prepareUserForRedirect(user3) {
   return __async(this, null, function* () {
-    const eventId = _generateEventId(`${user.uid}:::`);
-    user._redirectEventId = eventId;
-    yield user.auth._setRedirectUser(user);
-    yield user.auth._persistUserIfCurrent(user);
+    const eventId = _generateEventId(`${user3.uid}:::`);
+    user3._redirectEventId = eventId;
+    yield user3.auth._setRedirectUser(user3);
+    yield user3.auth._persistUserIfCurrent(user3);
     return eventId;
   });
 }
@@ -7515,9 +7540,9 @@ var PhoneMultiFactorAssertionImpl = class _PhoneMultiFactorAssertionImpl extends
     return new _PhoneMultiFactorAssertionImpl(credential);
   }
   /** @internal */
-  _finalizeEnroll(auth, idToken, displayName) {
+  _finalizeEnroll(auth, idToken3, displayName) {
     return finalizeEnrollPhoneMfa(auth, {
-      idToken,
+      idToken: idToken3,
       displayName,
       phoneVerificationInfo: this.credential._makeVerificationRequest()
     });
@@ -7620,7 +7645,7 @@ var TotpMultiFactorAssertionImpl = class _TotpMultiFactorAssertionImpl extends M
     return new _TotpMultiFactorAssertionImpl(otp, enrollmentId);
   }
   /** @internal */
-  _finalizeEnroll(auth, idToken, displayName) {
+  _finalizeEnroll(auth, idToken3, displayName) {
     return __async(this, null, function* () {
       _assert(
         typeof this.secret !== "undefined",
@@ -7629,7 +7654,7 @@ var TotpMultiFactorAssertionImpl = class _TotpMultiFactorAssertionImpl extends M
         /* AuthErrorCode.ARGUMENT_ERROR */
       );
       return finalizeEnrollTotpMfa(auth, {
-        idToken,
+        idToken: idToken3,
         displayName,
         totpVerificationInfo: this.secret._makeTotpVerificationInfo(this.otp)
       });
@@ -7730,8 +7755,8 @@ var AuthInterop = class {
     if (this.internalListeners.has(listener)) {
       return;
     }
-    const unsubscribe = this.auth.onIdTokenChanged((user) => {
-      listener((user === null || user === void 0 ? void 0 : user.stsTokenManager.accessToken) || null);
+    const unsubscribe = this.auth.onIdTokenChanged((user3) => {
+      listener((user3 === null || user3 === void 0 ? void 0 : user3.stsTokenManager.accessToken) || null);
     });
     this.internalListeners.set(listener, unsubscribe);
     this.updateProactiveRefresh();
@@ -7832,21 +7857,21 @@ function registerAuth(clientPlatform) {
 var DEFAULT_ID_TOKEN_MAX_AGE = 5 * 60;
 var authIdTokenMaxAge = getExperimentalSetting("authIdTokenMaxAge") || DEFAULT_ID_TOKEN_MAX_AGE;
 var lastPostedIdToken = null;
-var mintCookieFactory = (url) => (user) => __async(void 0, null, function* () {
-  const idTokenResult = user && (yield user.getIdTokenResult());
+var mintCookieFactory = (url) => (user3) => __async(void 0, null, function* () {
+  const idTokenResult = user3 && (yield user3.getIdTokenResult());
   const idTokenAge = idTokenResult && ((/* @__PURE__ */ new Date()).getTime() - Date.parse(idTokenResult.issuedAtTime)) / 1e3;
   if (idTokenAge && idTokenAge > authIdTokenMaxAge) {
     return;
   }
-  const idToken = idTokenResult === null || idTokenResult === void 0 ? void 0 : idTokenResult.token;
-  if (lastPostedIdToken === idToken) {
+  const idToken3 = idTokenResult === null || idTokenResult === void 0 ? void 0 : idTokenResult.token;
+  if (lastPostedIdToken === idToken3) {
     return;
   }
-  lastPostedIdToken = idToken;
+  lastPostedIdToken = idToken3;
   yield fetch(url, {
-    method: idToken ? "POST" : "DELETE",
-    headers: idToken ? {
-      "Authorization": `Bearer ${idToken}`
+    method: idToken3 ? "POST" : "DELETE",
+    headers: idToken3 ? {
+      "Authorization": `Bearer ${idToken3}`
     } : {}
   });
 });
@@ -7867,7 +7892,7 @@ function getAuth(app = getApp()) {
   if (authTokenSyncUrl) {
     const mintCookie = mintCookieFactory(authTokenSyncUrl);
     beforeAuthStateChanged(auth, mintCookie, () => mintCookie(auth.currentUser));
-    onIdTokenChanged(auth, (user) => mintCookie(user));
+    onIdTokenChanged(auth, (user3) => mintCookie(user3));
   }
   const authEmulatorHost = getDefaultEmulatorHost("auth");
   if (authEmulatorHost) {
@@ -7907,6 +7932,149 @@ registerAuth(
   /* ClientPlatform.BROWSER */
 );
 
+// node_modules/rxfire/auth/index.esm.js
+function authState(auth) {
+  return new Observable(function(subscriber) {
+    var unsubscribe = onAuthStateChanged(auth, subscriber.next.bind(subscriber), subscriber.error.bind(subscriber), subscriber.complete.bind(subscriber));
+    return { unsubscribe };
+  });
+}
+function user(auth) {
+  return new Observable(function(subscriber) {
+    var unsubscribe = onIdTokenChanged(auth, subscriber.next.bind(subscriber), subscriber.error.bind(subscriber), subscriber.complete.bind(subscriber));
+    return { unsubscribe };
+  });
+}
+function idToken(auth) {
+  return user(auth).pipe(switchMap(function(user3) {
+    return user3 ? from(getIdToken(user3)) : of(null);
+  }));
+}
+
+// node_modules/@angular/fire/fesm2022/angular-fire-auth.mjs
+var AUTH_PROVIDER_NAME = "auth";
+var Auth = class {
+  constructor(auth) {
+    return auth;
+  }
+};
+var AuthInstances = class {
+  constructor() {
+    return ɵgetAllInstancesOf(AUTH_PROVIDER_NAME);
+  }
+};
+var authInstance$ = timer(0, 300).pipe(concatMap(() => from(ɵgetAllInstancesOf(AUTH_PROVIDER_NAME))), distinct());
+var PROVIDED_AUTH_INSTANCES = new InjectionToken("angularfire2.auth-instances");
+function defaultAuthInstanceFactory(provided, defaultApp) {
+  const defaultAuth = ɵgetDefaultInstanceOf(AUTH_PROVIDER_NAME, provided, defaultApp);
+  return defaultAuth && new Auth(defaultAuth);
+}
+function authInstanceFactory(fn) {
+  return (zone, injector) => {
+    const auth = zone.runOutsideAngular(() => fn(injector));
+    return new Auth(auth);
+  };
+}
+var AUTH_INSTANCES_PROVIDER = {
+  provide: AuthInstances,
+  deps: [[new Optional(), PROVIDED_AUTH_INSTANCES]]
+};
+var DEFAULT_AUTH_INSTANCE_PROVIDER = {
+  provide: Auth,
+  useFactory: defaultAuthInstanceFactory,
+  deps: [[new Optional(), PROVIDED_AUTH_INSTANCES], FirebaseApp]
+};
+var AuthModule = class _AuthModule {
+  constructor() {
+    registerVersion("angularfire", VERSION.full, "auth");
+  }
+  static ɵfac = function AuthModule_Factory(t) {
+    return new (t || _AuthModule)();
+  };
+  static ɵmod = ɵɵdefineNgModule({
+    type: _AuthModule
+  });
+  static ɵinj = ɵɵdefineInjector({
+    providers: [DEFAULT_AUTH_INSTANCE_PROVIDER, AUTH_INSTANCES_PROVIDER]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AuthModule, [{
+    type: NgModule,
+    args: [{
+      providers: [DEFAULT_AUTH_INSTANCE_PROVIDER, AUTH_INSTANCES_PROVIDER]
+    }]
+  }], () => [], null);
+})();
+function provideAuth(fn, ...deps) {
+  return {
+    ngModule: AuthModule,
+    providers: [{
+      provide: PROVIDED_AUTH_INSTANCES,
+      useFactory: authInstanceFactory(fn),
+      multi: true,
+      deps: [NgZone, Injector, ɵAngularFireSchedulers, FirebaseApps, [new Optional(), ɵAppCheckInstances], ...deps]
+    }]
+  };
+}
+var authState2 = ɵzoneWrap(authState, true);
+var user2 = ɵzoneWrap(user, true);
+var idToken2 = ɵzoneWrap(idToken, true);
+var applyActionCode2 = ɵzoneWrap(applyActionCode, true);
+var beforeAuthStateChanged2 = ɵzoneWrap(beforeAuthStateChanged, true);
+var checkActionCode2 = ɵzoneWrap(checkActionCode, true);
+var confirmPasswordReset2 = ɵzoneWrap(confirmPasswordReset, true);
+var connectAuthEmulator2 = ɵzoneWrap(connectAuthEmulator, true);
+var createUserWithEmailAndPassword2 = ɵzoneWrap(createUserWithEmailAndPassword, true);
+var deleteUser2 = ɵzoneWrap(deleteUser, true);
+var fetchSignInMethodsForEmail2 = ɵzoneWrap(fetchSignInMethodsForEmail, true);
+var getAdditionalUserInfo2 = ɵzoneWrap(getAdditionalUserInfo, true);
+var getAuth2 = ɵzoneWrap(getAuth, true);
+var getIdToken2 = ɵzoneWrap(getIdToken, true);
+var getIdTokenResult2 = ɵzoneWrap(getIdTokenResult, true);
+var getMultiFactorResolver2 = ɵzoneWrap(getMultiFactorResolver, true);
+var getRedirectResult2 = ɵzoneWrap(getRedirectResult, true);
+var initializeAuth2 = ɵzoneWrap(initializeAuth, true);
+var initializeRecaptchaConfig2 = ɵzoneWrap(initializeRecaptchaConfig, true);
+var isSignInWithEmailLink2 = ɵzoneWrap(isSignInWithEmailLink, true);
+var linkWithCredential2 = ɵzoneWrap(linkWithCredential, true);
+var linkWithPhoneNumber2 = ɵzoneWrap(linkWithPhoneNumber, true);
+var linkWithPopup2 = ɵzoneWrap(linkWithPopup, true);
+var linkWithRedirect2 = ɵzoneWrap(linkWithRedirect, true);
+var multiFactor2 = ɵzoneWrap(multiFactor, true);
+var onAuthStateChanged2 = ɵzoneWrap(onAuthStateChanged, true);
+var onIdTokenChanged2 = ɵzoneWrap(onIdTokenChanged, true);
+var parseActionCodeURL2 = ɵzoneWrap(parseActionCodeURL, true);
+var reauthenticateWithCredential2 = ɵzoneWrap(reauthenticateWithCredential, true);
+var reauthenticateWithPhoneNumber2 = ɵzoneWrap(reauthenticateWithPhoneNumber, true);
+var reauthenticateWithPopup2 = ɵzoneWrap(reauthenticateWithPopup, true);
+var reauthenticateWithRedirect2 = ɵzoneWrap(reauthenticateWithRedirect, true);
+var reload2 = ɵzoneWrap(reload, true);
+var revokeAccessToken2 = ɵzoneWrap(revokeAccessToken, true);
+var sendEmailVerification2 = ɵzoneWrap(sendEmailVerification, true);
+var sendPasswordResetEmail2 = ɵzoneWrap(sendPasswordResetEmail, true);
+var sendSignInLinkToEmail2 = ɵzoneWrap(sendSignInLinkToEmail, true);
+var setPersistence2 = ɵzoneWrap(setPersistence, true);
+var signInAnonymously2 = ɵzoneWrap(signInAnonymously, true);
+var signInWithCredential2 = ɵzoneWrap(signInWithCredential, true);
+var signInWithCustomToken2 = ɵzoneWrap(signInWithCustomToken, true);
+var signInWithEmailAndPassword2 = ɵzoneWrap(signInWithEmailAndPassword, true);
+var signInWithEmailLink2 = ɵzoneWrap(signInWithEmailLink, true);
+var signInWithPhoneNumber2 = ɵzoneWrap(signInWithPhoneNumber, true);
+var signInWithPopup2 = ɵzoneWrap(signInWithPopup, true);
+var signInWithRedirect2 = ɵzoneWrap(signInWithRedirect, true);
+var signOut2 = ɵzoneWrap(signOut, true);
+var unlink2 = ɵzoneWrap(unlink, true);
+var updateCurrentUser2 = ɵzoneWrap(updateCurrentUser, true);
+var updateEmail2 = ɵzoneWrap(updateEmail, true);
+var updatePassword2 = ɵzoneWrap(updatePassword, true);
+var updatePhoneNumber2 = ɵzoneWrap(updatePhoneNumber, true);
+var updateProfile2 = ɵzoneWrap(updateProfile, true);
+var useDeviceLanguage2 = ɵzoneWrap(useDeviceLanguage, true);
+var validatePassword2 = ɵzoneWrap(validatePassword, true);
+var verifyBeforeUpdateEmail2 = ɵzoneWrap(verifyBeforeUpdateEmail, true);
+var verifyPasswordResetCode2 = ɵzoneWrap(verifyPasswordResetCode, true);
+
 export {
   FactorId,
   ProviderId,
@@ -7916,18 +8084,12 @@ export {
   debugErrorMap,
   prodErrorMap,
   AUTH_ERROR_CODES_MAP_DO_NOT_USE_INTERNALLY,
-  getIdToken,
-  getIdTokenResult,
-  reload,
   inMemoryPersistence,
-  initializeAuth,
-  connectAuthEmulator,
   AuthCredential,
   EmailAuthCredential,
   OAuthCredential,
   PhoneAuthCredential,
   ActionCodeURL,
-  parseActionCodeURL,
   EmailAuthProvider,
   OAuthProvider,
   FacebookAuthProvider,
@@ -7935,63 +8097,77 @@ export {
   GithubAuthProvider,
   SAMLAuthProvider,
   TwitterAuthProvider,
-  signInAnonymously,
-  unlink,
-  signInWithCredential,
-  linkWithCredential,
-  reauthenticateWithCredential,
-  signInWithCustomToken,
-  sendPasswordResetEmail,
-  confirmPasswordReset,
-  applyActionCode,
-  checkActionCode,
-  verifyPasswordResetCode,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendSignInLinkToEmail,
-  isSignInWithEmailLink,
-  signInWithEmailLink,
-  fetchSignInMethodsForEmail,
-  sendEmailVerification,
-  verifyBeforeUpdateEmail,
-  updateProfile,
-  updateEmail,
-  updatePassword,
-  getAdditionalUserInfo,
-  setPersistence,
-  initializeRecaptchaConfig,
-  validatePassword,
-  onIdTokenChanged,
-  beforeAuthStateChanged,
-  onAuthStateChanged,
-  useDeviceLanguage,
-  updateCurrentUser,
-  signOut,
-  revokeAccessToken,
-  deleteUser,
-  getMultiFactorResolver,
-  multiFactor,
   browserLocalPersistence,
   browserSessionPersistence,
   indexedDBLocalPersistence,
   RecaptchaVerifier,
-  signInWithPhoneNumber,
-  linkWithPhoneNumber,
-  reauthenticateWithPhoneNumber,
-  updatePhoneNumber,
   PhoneAuthProvider,
-  signInWithPopup,
-  reauthenticateWithPopup,
-  linkWithPopup,
-  signInWithRedirect,
-  reauthenticateWithRedirect,
-  linkWithRedirect,
-  getRedirectResult,
   browserPopupRedirectResolver,
   PhoneMultiFactorGenerator,
   TotpMultiFactorGenerator,
   TotpSecret,
-  getAuth
+  Auth,
+  AuthInstances,
+  authInstance$,
+  AuthModule,
+  provideAuth,
+  authState2 as authState,
+  user2 as user,
+  idToken2 as idToken,
+  applyActionCode2 as applyActionCode,
+  beforeAuthStateChanged2 as beforeAuthStateChanged,
+  checkActionCode2 as checkActionCode,
+  confirmPasswordReset2 as confirmPasswordReset,
+  connectAuthEmulator2 as connectAuthEmulator,
+  createUserWithEmailAndPassword2 as createUserWithEmailAndPassword,
+  deleteUser2 as deleteUser,
+  fetchSignInMethodsForEmail2 as fetchSignInMethodsForEmail,
+  getAdditionalUserInfo2 as getAdditionalUserInfo,
+  getAuth2 as getAuth,
+  getIdToken2 as getIdToken,
+  getIdTokenResult2 as getIdTokenResult,
+  getMultiFactorResolver2 as getMultiFactorResolver,
+  getRedirectResult2 as getRedirectResult,
+  initializeAuth2 as initializeAuth,
+  initializeRecaptchaConfig2 as initializeRecaptchaConfig,
+  isSignInWithEmailLink2 as isSignInWithEmailLink,
+  linkWithCredential2 as linkWithCredential,
+  linkWithPhoneNumber2 as linkWithPhoneNumber,
+  linkWithPopup2 as linkWithPopup,
+  linkWithRedirect2 as linkWithRedirect,
+  multiFactor2 as multiFactor,
+  onAuthStateChanged2 as onAuthStateChanged,
+  onIdTokenChanged2 as onIdTokenChanged,
+  parseActionCodeURL2 as parseActionCodeURL,
+  reauthenticateWithCredential2 as reauthenticateWithCredential,
+  reauthenticateWithPhoneNumber2 as reauthenticateWithPhoneNumber,
+  reauthenticateWithPopup2 as reauthenticateWithPopup,
+  reauthenticateWithRedirect2 as reauthenticateWithRedirect,
+  reload2 as reload,
+  revokeAccessToken2 as revokeAccessToken,
+  sendEmailVerification2 as sendEmailVerification,
+  sendPasswordResetEmail2 as sendPasswordResetEmail,
+  sendSignInLinkToEmail2 as sendSignInLinkToEmail,
+  setPersistence2 as setPersistence,
+  signInAnonymously2 as signInAnonymously,
+  signInWithCredential2 as signInWithCredential,
+  signInWithCustomToken2 as signInWithCustomToken,
+  signInWithEmailAndPassword2 as signInWithEmailAndPassword,
+  signInWithEmailLink2 as signInWithEmailLink,
+  signInWithPhoneNumber2 as signInWithPhoneNumber,
+  signInWithPopup2 as signInWithPopup,
+  signInWithRedirect2 as signInWithRedirect,
+  signOut2 as signOut,
+  unlink2 as unlink,
+  updateCurrentUser2 as updateCurrentUser,
+  updateEmail2 as updateEmail,
+  updatePassword2 as updatePassword,
+  updatePhoneNumber2 as updatePhoneNumber,
+  updateProfile2 as updateProfile,
+  useDeviceLanguage2 as useDeviceLanguage,
+  validatePassword2 as validatePassword,
+  verifyBeforeUpdateEmail2 as verifyBeforeUpdateEmail,
+  verifyPasswordResetCode2 as verifyPasswordResetCode
 };
 /*! Bundled license information:
 
@@ -8192,5 +8368,23 @@ export {
    * See the License for the specific language governing permissions and
    * limitations under the License.
    *)
+
+rxfire/auth/index.esm.js:
+  (**
+   * @license
+   * Copyright 2018 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
 */
-//# sourceMappingURL=chunk-SCUH5U3B.js.map
+//# sourceMappingURL=chunk-PBT5MNNW.js.map
