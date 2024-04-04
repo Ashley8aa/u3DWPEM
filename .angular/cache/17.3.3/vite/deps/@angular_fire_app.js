@@ -11,18 +11,22 @@ import {
   _clearComponents,
   _components,
   _getProvider,
+  _isFirebaseApp,
+  _isFirebaseServerApp,
   _registerComponent,
   _removeServiceInstance,
+  _serverApps,
   deleteApp,
   firebaseApp$,
   getApp2 as getApp,
   getApps,
   initializeApp,
+  initializeServerApp,
   onLog,
   provideFirebaseApp,
   registerVersion2 as registerVersion,
   setLogLevel
-} from "./chunk-42JM4G7W.js";
+} from "./chunk-T4HYDV4X.js";
 import "./chunk-WHJZDIUK.js";
 import "./chunk-MD2JTI2T.js";
 export {
@@ -38,13 +42,17 @@ export {
   _clearComponents,
   _components,
   _getProvider,
+  _isFirebaseApp,
+  _isFirebaseServerApp,
   _registerComponent,
   _removeServiceInstance,
+  _serverApps,
   deleteApp,
   firebaseApp$,
   getApp,
   getApps,
   initializeApp,
+  initializeServerApp,
   onLog,
   provideFirebaseApp,
   registerVersion,

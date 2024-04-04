@@ -447,6 +447,9 @@ function isNode() {
     return false;
   }
 }
+function isBrowser() {
+  return typeof self === "object" && self.self === self;
+}
 function isBrowserExtension() {
   const runtime = typeof chrome === "object" ? chrome.runtime : typeof browser === "object" ? browser.runtime : void 0;
   return typeof runtime === "object" && runtime.id !== void 0;
@@ -459,7 +462,7 @@ function isIE() {
   return ua.indexOf("MSIE ") >= 0 || ua.indexOf("Trident/") >= 0;
 }
 function isSafari() {
-  return !isNode() && navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome");
+  return !isNode() && !!navigator.userAgent && navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome");
 }
 function isIndexedDBAvailable() {
   try {
@@ -1434,7 +1437,7 @@ function isVersionServiceProvider(provider) {
   return (component === null || component === void 0 ? void 0 : component.type) === "VERSION";
 }
 var name$o = "@firebase/app";
-var version$1 = "0.9.23";
+var version$1 = "0.10.0";
 var logger = new Logger("@firebase/app");
 var name$n = "@firebase/app-compat";
 var name$m = "@firebase/analytics-compat";
@@ -1460,7 +1463,7 @@ var name$3 = "@firebase/storage-compat";
 var name$2 = "@firebase/firestore";
 var name$1 = "@firebase/firestore-compat";
 var name = "firebase";
-var version = "10.6.0";
+var version = "10.10.0";
 var DEFAULT_ENTRY_NAME2 = "[DEFAULT]";
 var PLATFORM_LOG_STRING = {
   [name$o]: "fire-core",
@@ -1491,6 +1494,7 @@ var PLATFORM_LOG_STRING = {
   [name]: "fire-js-all"
 };
 var _apps = /* @__PURE__ */ new Map();
+var _serverApps = /* @__PURE__ */ new Map();
 var _components = /* @__PURE__ */ new Map();
 function _addComponent(app, component) {
   try {
@@ -1512,6 +1516,9 @@ function _registerComponent(component) {
   for (const app of _apps.values()) {
     _addComponent(app, component);
   }
+  for (const serverApp of _serverApps.values()) {
+    _addComponent(serverApp, component);
+  }
   return true;
 }
 function _getProvider(app, name3) {
@@ -1524,6 +1531,12 @@ function _getProvider(app, name3) {
 function _removeServiceInstance(app, name3, instanceIdentifier = DEFAULT_ENTRY_NAME2) {
   _getProvider(app, name3).clearInstance(instanceIdentifier);
 }
+function _isFirebaseApp(obj) {
+  return obj.options !== void 0;
+}
+function _isFirebaseServerApp(obj) {
+  return obj.settings !== void 0;
+}
 function _clearComponents() {
   _components.clear();
 }
@@ -1535,7 +1548,7 @@ var ERRORS = {
   [
     "bad-app-name"
     /* AppError.BAD_APP_NAME */
-  ]: "Illegal App name: '{$appName}",
+  ]: "Illegal App name: '{$appName}'",
   [
     "duplicate-app"
     /* AppError.DUPLICATE_APP */
@@ -1544,6 +1557,10 @@ var ERRORS = {
     "app-deleted"
     /* AppError.APP_DELETED */
   ]: "Firebase App named '{$appName}' already deleted",
+  [
+    "server-app-deleted"
+    /* AppError.SERVER_APP_DELETED */
+  ]: "Firebase Server App has been deleted",
   [
     "no-options"
     /* AppError.NO_OPTIONS */
@@ -1571,7 +1588,15 @@ var ERRORS = {
   [
     "idb-delete"
     /* AppError.IDB_DELETE */
-  ]: "Error thrown when deleting from IndexedDB. Original error: {$originalErrorMessage}."
+  ]: "Error thrown when deleting from IndexedDB. Original error: {$originalErrorMessage}.",
+  [
+    "finalization-registry-not-supported"
+    /* AppError.FINALIZATION_REGISTRY_NOT_SUPPORTED */
+  ]: "FirebaseServerApp deleteOnDeref field defined but the JS runtime does not support FinalizationRegistry.",
+  [
+    "invalid-server-app-environment"
+    /* AppError.INVALID_SERVER_APP_ENVIRONMENT */
+  ]: "FirebaseServerApp is not for use in browser environments."
 };
 var ERROR_FACTORY = new ErrorFactory("app", "Firebase", ERRORS);
 var FirebaseAppImpl = class {
@@ -1628,6 +1653,73 @@ var FirebaseAppImpl = class {
     }
   }
 };
+var FirebaseServerAppImpl = class extends FirebaseAppImpl {
+  constructor(options, serverConfig, name3, container) {
+    const automaticDataCollectionEnabled = serverConfig.automaticDataCollectionEnabled !== void 0 ? serverConfig.automaticDataCollectionEnabled : false;
+    const config = {
+      name: name3,
+      automaticDataCollectionEnabled
+    };
+    if (options.apiKey !== void 0) {
+      super(options, config, container);
+    } else {
+      const appImpl = options;
+      super(appImpl.options, config, container);
+    }
+    this._serverConfig = Object.assign({ automaticDataCollectionEnabled }, serverConfig);
+    this._finalizationRegistry = new FinalizationRegistry(() => {
+      this.automaticCleanup();
+    });
+    this._refCount = 0;
+    this.incRefCount(this._serverConfig.releaseOnDeref);
+    this._serverConfig.releaseOnDeref = void 0;
+    serverConfig.releaseOnDeref = void 0;
+    registerVersion(name$o, version$1, "serverapp");
+  }
+  get refCount() {
+    return this._refCount;
+  }
+  // Increment the reference count of this server app. If an object is provided, register it
+  // with the finalization registry.
+  incRefCount(obj) {
+    if (this.isDeleted) {
+      return;
+    }
+    this._refCount++;
+    if (obj !== void 0) {
+      this._finalizationRegistry.register(obj, this);
+    }
+  }
+  // Decrement the reference count.
+  decRefCount() {
+    if (this.isDeleted) {
+      return 0;
+    }
+    return --this._refCount;
+  }
+  // Invoked by the FinalizationRegistry callback to note that this app should go through its
+  // reference counts and delete itself if no reference count remain. The coordinating logic that
+  // handles this is in deleteApp(...).
+  automaticCleanup() {
+    void deleteApp(this);
+  }
+  get settings() {
+    this.checkDestroyed();
+    return this._serverConfig;
+  }
+  /**
+   * This function will throw an Error if the App has already been deleted -
+   * use before performing API actions on the App.
+   */
+  checkDestroyed() {
+    if (this.isDeleted) {
+      throw ERROR_FACTORY.create(
+        "server-app-deleted"
+        /* AppError.SERVER_APP_DELETED */
+      );
+    }
+  }
+};
 var SDK_VERSION = version;
 function initializeApp(_options, rawConfig = {}) {
   let options = _options;
@@ -1665,6 +1757,48 @@ function initializeApp(_options, rawConfig = {}) {
   _apps.set(name3, newApp);
   return newApp;
 }
+function initializeServerApp(_options, _serverAppConfig) {
+  if (isBrowser()) {
+    throw ERROR_FACTORY.create(
+      "invalid-server-app-environment"
+      /* AppError.INVALID_SERVER_APP_ENVIRONMENT */
+    );
+  }
+  if (_serverAppConfig.automaticDataCollectionEnabled === void 0) {
+    _serverAppConfig.automaticDataCollectionEnabled = false;
+  }
+  let appOptions;
+  if (_isFirebaseApp(_options)) {
+    appOptions = _options.options;
+  } else {
+    appOptions = _options;
+  }
+  const nameObj = Object.assign(Object.assign({}, _serverAppConfig), appOptions);
+  if (nameObj.releaseOnDeref !== void 0) {
+    delete nameObj.releaseOnDeref;
+  }
+  const hashCode = (s) => {
+    return [...s].reduce((hash, c) => Math.imul(31, hash) + c.charCodeAt(0) | 0, 0);
+  };
+  if (_serverAppConfig.releaseOnDeref !== void 0) {
+    if (typeof FinalizationRegistry === "undefined") {
+      throw ERROR_FACTORY.create("finalization-registry-not-supported", {});
+    }
+  }
+  const nameString = "" + hashCode(JSON.stringify(nameObj));
+  const existingApp = _serverApps.get(nameString);
+  if (existingApp) {
+    existingApp.incRefCount(_serverAppConfig.releaseOnDeref);
+    return existingApp;
+  }
+  const container = new ComponentContainer(nameString);
+  for (const component of _components.values()) {
+    container.addComponent(component);
+  }
+  const newApp = new FirebaseServerAppImpl(appOptions, _serverAppConfig, nameString, container);
+  _serverApps.set(nameString, newApp);
+  return newApp;
+}
 function getApp(name3 = DEFAULT_ENTRY_NAME2) {
   const app = _apps.get(name3);
   if (!app && name3 === DEFAULT_ENTRY_NAME2 && getDefaultAppConfig()) {
@@ -1680,9 +1814,19 @@ function getApps() {
 }
 function deleteApp(app) {
   return __async(this, null, function* () {
+    let cleanupProviders = false;
     const name3 = app.name;
     if (_apps.has(name3)) {
+      cleanupProviders = true;
       _apps.delete(name3);
+    } else if (_serverApps.has(name3)) {
+      const firebaseServerApp = app;
+      if (firebaseServerApp.decRefCount() <= 0) {
+        _serverApps.delete(name3);
+        cleanupProviders = true;
+      }
+    }
+    if (cleanupProviders) {
       yield Promise.all(app.container.getProviders().map((provider) => provider.delete()));
       app.isDeleted = true;
     }
@@ -1741,7 +1885,11 @@ function getDbPromise() {
       upgrade: (db, oldVersion) => {
         switch (oldVersion) {
           case 0:
-            db.createObjectStore(STORE_NAME);
+            try {
+              db.createObjectStore(STORE_NAME);
+            } catch (e) {
+              console.warn(e);
+            }
         }
       }
     }).catch((e) => {
@@ -1756,7 +1904,9 @@ function readHeartbeatsFromIndexedDB(app) {
   return __async(this, null, function* () {
     try {
       const db = yield getDbPromise();
-      const result = yield db.transaction(STORE_NAME).objectStore(STORE_NAME).get(computeKey(app));
+      const tx = db.transaction(STORE_NAME);
+      const result = yield tx.objectStore(STORE_NAME).get(computeKey(app));
+      yield tx.done;
       return result;
     } catch (e) {
       if (e instanceof FirebaseError) {
@@ -1815,12 +1965,15 @@ var HeartbeatServiceImpl = class {
    */
   triggerHeartbeat() {
     return __async(this, null, function* () {
-      var _a;
+      var _a, _b;
       const platformLogger = this.container.getProvider("platform-logger").getImmediate();
       const agent = platformLogger.getPlatformInfoString();
       const date = getUTCDateString();
       if (((_a = this._heartbeatsCache) === null || _a === void 0 ? void 0 : _a.heartbeats) == null) {
         this._heartbeatsCache = yield this._heartbeatsCachePromise;
+        if (((_b = this._heartbeatsCache) === null || _b === void 0 ? void 0 : _b.heartbeats) == null) {
+          return;
+        }
       }
       if (this._heartbeatsCache.lastSentHeartbeatDate === date || this._heartbeatsCache.heartbeats.some((singleDateHeartbeat) => singleDateHeartbeat.date === date)) {
         return;
@@ -1922,7 +2075,11 @@ var HeartbeatStorageImpl = class {
         return { heartbeats: [] };
       } else {
         const idbHeartbeatObject = yield readHeartbeatsFromIndexedDB(this.app);
-        return idbHeartbeatObject || { heartbeats: [] };
+        if (idbHeartbeatObject === null || idbHeartbeatObject === void 0 ? void 0 : idbHeartbeatObject.heartbeats) {
+          return idbHeartbeatObject;
+        } else {
+          return { heartbeats: [] };
+        }
       }
     });
   }
@@ -1989,7 +2146,7 @@ registerCoreComponents("");
 
 // node_modules/firebase/app/dist/esm/index.esm.js
 var name2 = "firebase";
-var version2 = "10.6.0";
+var version2 = "10.10.0";
 registerVersion(name2, version2, "app");
 
 // node_modules/@angular/fire/fesm2022/angular-fire.mjs
@@ -2101,11 +2258,9 @@ var ɵAngularFireSchedulers = class _ɵAngularFireSchedulers {
     args: [{
       providedIn: "root"
     }]
-  }], function() {
-    return [{
-      type: NgZone
-    }];
-  }, null);
+  }], () => [{
+    type: NgZone
+  }], null);
 })();
 function getSchedulers() {
   const schedulers = globalThis.ɵAngularFireScheduler;
@@ -2248,15 +2403,13 @@ var FirebaseAppModule = class _FirebaseAppModule {
     args: [{
       providers: [DEFAULT_FIREBASE_APP_PROVIDER, FIREBASE_APPS_PROVIDER]
     }]
-  }], function() {
-    return [{
-      type: Object,
-      decorators: [{
-        type: Inject,
-        args: [PLATFORM_ID]
-      }]
-    }];
-  }, null);
+  }], () => [{
+    type: Object,
+    decorators: [{
+      type: Inject,
+      args: [PLATFORM_ID]
+    }]
+  }], null);
 })();
 function provideFirebaseApp(fn, ...deps) {
   return {
@@ -2304,14 +2457,18 @@ export {
   Logger,
   DEFAULT_ENTRY_NAME2 as DEFAULT_ENTRY_NAME,
   _apps,
+  _serverApps,
   _components,
   _addComponent,
   _addOrOverwriteComponent,
   _registerComponent,
   _getProvider,
   _removeServiceInstance,
+  _isFirebaseApp,
+  _isFirebaseServerApp,
   _clearComponents,
   SDK_VERSION,
+  initializeServerApp,
   getApp,
   registerVersion,
   VERSION2 as VERSION,
@@ -2692,6 +2849,22 @@ export {
    *)
   (**
    * @license
+   * Copyright 2023 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
    * Copyright 2021 Google LLC
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
@@ -2725,4 +2898,4 @@ firebase/app/dist/esm/index.esm.js:
    * limitations under the License.
    *)
 */
-//# sourceMappingURL=chunk-42JM4G7W.js.map
+//# sourceMappingURL=chunk-T4HYDV4X.js.map
