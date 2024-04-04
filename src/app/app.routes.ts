@@ -20,8 +20,4 @@ export const routes: Routes = [
     { path: 'store/edit/:id', component: ProductFormComponent },
     { path: 'recover-password', component: RecoverPasswordComponent },
     { path: 'check-email', component: CheckEmailComponent },
-
-
-
-    
 ];
