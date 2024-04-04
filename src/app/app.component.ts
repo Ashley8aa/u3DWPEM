@@ -11,7 +11,7 @@ import { AuthService } from './auth.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit{
-  title = 'u2e4';
+  title = 'DWPEM';
   //Suscripción al estado de autenticación del usuario cuando se inicializa el componente y actualiza una señal con info del usuario cada vez que cambia el estado de autenticación.
   authService = inject(AuthService);
   //Para gestionar la autenticación y autorización de usuarios.
